@@ -30,7 +30,7 @@ public class PlayerMovement : MonoBehaviourTrans
 	// Update is called once per frame
 	void Update() 
 	{
-        Debug.DrawRay(transform.position, transform.forward, Color.red);
+        Debug.DrawRay(transform.position, transform.forward * m_navmeshagentThis.stoppingDistance, Color.red);
         
         if(m_animatorThis != null)
         {
@@ -41,6 +41,8 @@ public class PlayerMovement : MonoBehaviourTrans
 
     void LateUpdate()
     {
+        Debug.DrawLine(transform.position, m_v3Target);
+
         //Check if the NavMeshAgent is Null or not on the Mesh
         if (m_navmeshagentThis == null)
         {
@@ -86,15 +88,26 @@ public class PlayerMovement : MonoBehaviourTrans
 	}
 
 	public void SetTarget(RaycastHit _rchitClick)
-	{
+    {
+        Vector3 v3TargetPos;
         m_bHasArrived = false;
-        m_v3Target = _rchitClick.point;
-		m_navmeshagentThis.SetDestination (m_v3Target);
+
         GameObject goClicked = _rchitClick.collider.gameObject;
         if (goClicked.layer == 10 /*Enemy*/)
         {
             m_navmeshagentThis.stoppingDistance = Inventory.s_instance.CombatRange;
+            v3TargetPos = goClicked.transform.position;
         }
+        else
+        {
+            m_navmeshagentThis.stoppingDistance = 0;
+            v3TargetPos = _rchitClick.point;
+        }
+
+        v3TargetPos.y = 0;
+        m_v3Target = v3TargetPos;
+		m_navmeshagentThis.SetDestination (m_v3Target);
+        
     }
 
     public Vector3 position

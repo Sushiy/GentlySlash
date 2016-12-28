@@ -6,8 +6,9 @@ public class Inventory : MonoBehaviourTrans
 {
     public static Inventory s_instance;
 
-    private Weapon[] m_weaponSlots;
+    public float m_fStandardStoppingDistance = 2.0f;
 
+    private Weapon[] m_weaponSlots;
     private int m_iActiveWeapon;
 
 	// Use this for initialization
@@ -57,7 +58,7 @@ public class Inventory : MonoBehaviourTrans
             if (ActiveWeapon != null)
                 return ActiveWeapon.m_fAttackRange;
             else
-                return 0;
+                return m_fStandardStoppingDistance;
         }
     }
 }
