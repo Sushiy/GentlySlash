@@ -5,7 +5,7 @@ using UnityEngine.UI;
 using UniRx;
 
 [RequireComponent(typeof(Slider))]
-public class HealthView : MonoBehaviour
+public class HealthView : MonoBehaviourTrans
 {
     Slider m_sliderThis;
 

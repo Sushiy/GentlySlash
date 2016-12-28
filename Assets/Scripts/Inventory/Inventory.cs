@@ -31,7 +31,6 @@ public class Inventory : MonoBehaviourTrans
         if(m_weaponSlots[m_iActiveWeapon.Value] == null || m_weaponSlots[m_iNumOfSlots - 1 - m_iActiveWeapon.Value] != null)
         {
             m_weaponSlots[m_iActiveWeapon.Value] = _weapon;
-            m_iActiveWeapon.SetValueAndForceNotify(m_iActiveWeapon.Value);      //This is actually just done to trigger the ReactiveProperty
         }
         //else put it in your nonactive slot (which should be empty)
         else
@@ -39,6 +38,8 @@ public class Inventory : MonoBehaviourTrans
             m_weaponSlots[m_iNumOfSlots - 1 - m_iActiveWeapon.Value] = _weapon;
  
         }
+
+        m_iActiveWeapon.SetValueAndForceNotify(m_iActiveWeapon.Value);      //This is actually just done to trigger the ReactiveProperty
     }
 
     //Switch to the weapon with the specified index

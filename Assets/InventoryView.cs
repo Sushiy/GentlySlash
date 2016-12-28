@@ -6,24 +6,24 @@ using UniRx;
 
 public class InventoryView : MonoBehaviourTrans
 {
-    public int m_iSlotNumber = 0;
-    Image m_imageThis;
+    public Image m_imageFirst;
+    public Image m_imageSecond;
 
     private string counter;
 
     private void Start()
     {
-        m_imageThis = GetComponent<Image>();
         Inventory.s_instance.m_iActiveWeapon
         .Subscribe(m_iActiveWeapon => ShowInventorySprite());
-
     }
 
     private void ShowInventorySprite()
     {
         Debug.Log("ShowInventorySprite");
-        if (Inventory.s_instance.m_weaponSlots[m_iSlotNumber] != null)
-            m_imageThis.sprite = Inventory.s_instance.m_weaponSlots[m_iSlotNumber].m_spriteUI;
+        if (Inventory.s_instance.m_weaponSlots[0] != null)
+            m_imageFirst.sprite = Inventory.s_instance.m_weaponSlots[0].m_spriteUI;
+        if (Inventory.s_instance.m_weaponSlots[1] != null)
+            m_imageSecond.sprite = Inventory.s_instance.m_weaponSlots[1].m_spriteUI;
     }
 
 }
