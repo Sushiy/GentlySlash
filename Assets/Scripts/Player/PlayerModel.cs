@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UniRx;
 
 public enum PlayerState
 {
@@ -12,20 +13,26 @@ public enum PlayerState
 
 public class PlayerModel : MonoBehaviourTrans
 {
+    public static PlayerModel s_instance;
     PlayerMovement m_playerMovement;
 
     public int m_iMaxHealth = 100;
-    int m_iHealth;
+    public ReactiveProperty<int> m_iHealth;
 
     PlayerState m_playerstateCurrent = PlayerState.Idle;
 
     WeaponPickup m_weaponPickUp;
 
+    void Awake()
+    {
+        s_instance = this;
+        m_iHealth = new ReactiveProperty<int>(m_iMaxHealth);
+    }
+
 	// Use this for initialization
 	void Start ()
     {
         m_playerMovement = GetComponent<PlayerMovement>();
-        m_iHealth = m_iMaxHealth;
 	}
 	
 	// Update is called once per frame
@@ -34,6 +41,7 @@ public class PlayerModel : MonoBehaviourTrans
         if(CurrentState == PlayerState.PickingUp && m_playerMovement.HasArrived)
         {
             Inventory.s_instance.TakeWeapon(m_weaponPickUp.m_weaponThis);
+            m_playerstateCurrent = PlayerState.Idle;
         }
 
         if(CurrentState == PlayerState.Attacking && m_playerMovement.HasArrived)
@@ -53,7 +61,8 @@ public class PlayerModel : MonoBehaviourTrans
             m_playerMovement.SetTarget(v3TargetPos, Inventory.s_instance.CombatRange);
             m_playerstateCurrent = PlayerState.Attacking;
         }
-        else if(goClicked.layer == 9 /*Weapon*/)
+
+        if (goClicked.layer == 9 /*Weapon*/)
         {
             v3TargetPos = goClicked.transform.position;
             v3TargetPos.y = 0;
@@ -61,7 +70,13 @@ public class PlayerModel : MonoBehaviourTrans
             m_weaponPickUp = goClicked.GetComponent<WeaponPickup>();
             m_playerstateCurrent = PlayerState.PickingUp;
         }
-        
+        if (goClicked.layer == 8 /*Ground*/)
+        {
+            v3TargetPos = _rchitClick.point;
+            v3TargetPos.y = 0;
+            m_playerMovement.SetTarget(v3TargetPos, 0.0f);
+            m_playerstateCurrent = PlayerState.Walking;
+        }
 
     }
 
@@ -71,5 +86,10 @@ public class PlayerModel : MonoBehaviourTrans
         {
             return m_playerstateCurrent;
         }
+    }
+
+    public void TakeDamage(int _iDamage)
+    {
+        m_iHealth.Value = Mathf.Max(m_iHealth.Value - _iDamage, 0);
     }
 }

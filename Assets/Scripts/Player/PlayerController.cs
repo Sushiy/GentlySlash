@@ -26,5 +26,19 @@ public class PlayerController : MonoBehaviourTrans
                     
             }
         }
+
+        if(Input.GetKeyDown(KeyCode.I))
+        {
+            PlayerModel.s_instance.TakeDamage(10);
+        }
+
+        if (Input.GetKeyDown(KeyCode.Alpha1))
+        {
+            Inventory.s_instance.SwitchToWeapon(0);
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha2))
+        {
+            Inventory.s_instance.SwitchToWeapon(1);
+        }
     }
 }
