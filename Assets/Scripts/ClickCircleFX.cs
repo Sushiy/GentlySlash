@@ -19,6 +19,7 @@ public class ClickCircleFX : MonoBehaviourTrans
     {
         if(m_psCircle != null)
         {
+            _v3Pos.y = 0;
             transform.position = _v3Pos;
             m_psCircle.Play();
         }

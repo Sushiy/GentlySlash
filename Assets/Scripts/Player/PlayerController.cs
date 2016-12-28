@@ -21,9 +21,9 @@ public class PlayerController : MonoBehaviourTrans
         {
             if (Physics.Raycast(Camera.main.ScreenPointToRay(v3MousePos), out rchitClick))
             {
-                ClickCircleFX.s_instance.PlayParticleSystem(rchitClick.point);
-                if(rchitClick.collider.gameObject.layer == 8)
-                    m_playerMovementThis.SetTarget(rchitClick.point);
+                ClickCircleFX.s_instance.PlayParticleSystem(rchitClick.point); 
+                m_playerMovementThis.SetTarget(rchitClick);
+                    
             }
         }
     }

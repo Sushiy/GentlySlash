@@ -2,19 +2,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Weapon : MonoBehaviourTrans
+[CreateAssetMenu(fileName = "weaponName", menuName = "Weapon", order = 1)]
+public class Weapon : ScriptableObject
 {
-    public float m_fRange;
-    public float m_fDamagePerHit;
-
-
-	// Use this for initialization
-	void Start () {
-		
-	}
-	
-	// Update is called once per frame
-	void Update () {
-		
-	}
+    public float m_fAttackRange;    //Attackrange in Units
+    public float m_fDamage;         //Damage done per hit
+    public float m_fAttackSpeed;    //Attacks per Second
+    public GameObject m_goWeaponPrefab;  //The Model used for this Weapon
 }

@@ -11,7 +11,6 @@ public class PlayerMovement : MonoBehaviourTrans
 	Vector3 m_v3Target;
 
 	bool m_bHasArrived = false;
-    Vector3 m_v3LookDirection;
 
     public float m_fMovementSpeed = 3.5f; //3.5f is the standard speed for NavMeshAgents
     public float m_fTurningSpeed = 120.0f; //120.0f is the standard turningSpeed
@@ -31,7 +30,7 @@ public class PlayerMovement : MonoBehaviourTrans
 	// Update is called once per frame
 	void Update() 
 	{
-        Debug.DrawRay(transform.position, m_v3LookDirection, Color.red);
+        Debug.DrawRay(transform.position, transform.forward, Color.red);
         
         if(m_animatorThis != null)
         {
@@ -58,14 +57,13 @@ public class PlayerMovement : MonoBehaviourTrans
         //Get remaining Pathdistance
         float fDist = m_navmeshagentThis.remainingDistance;
 
-        //If the agent is still moving, set the lookDirection to the velocity direction
-        if (m_navmeshagentThis.velocity.magnitude > 0)
+        //If the agent is still moving, has still some Distance to go or is still calculating his path, he has not arrived yet set. Also set the lookDirection to the velocity direction
+        if (m_navmeshagentThis.velocity.magnitude > 0 || fDist > float.Epsilon || m_navmeshagentThis.pathPending)
         {
             m_bHasArrived = false;
-            m_v3LookDirection = m_navmeshagentThis.velocity.normalized;
         }
-        //If the agent is not moving, check if he has really arrived or is stuck
-        else if (fDist != Mathf.Infinity && m_navmeshagentThis.pathStatus == UnityEngine.AI.NavMeshPathStatus.PathComplete && m_navmeshagentThis.remainingDistance == 0)
+        //The Agent has arrived if the remaining distance is almost 0 and its path is complete
+        else if (fDist <= float.Epsilon && m_navmeshagentThis.pathStatus == NavMeshPathStatus.PathComplete)
         {
             m_bHasArrived = true;
         }
@@ -87,12 +85,17 @@ public class PlayerMovement : MonoBehaviourTrans
         }
 	}
 
-	public void SetTarget(Vector3 t)
+	public void SetTarget(RaycastHit _rchitClick)
 	{
         m_bHasArrived = false;
-        m_v3Target = t;
+        m_v3Target = _rchitClick.point;
 		m_navmeshagentThis.SetDestination (m_v3Target);
-	}
+        GameObject goClicked = _rchitClick.collider.gameObject;
+        if (goClicked.layer == 10 /*Enemy*/)
+        {
+            m_navmeshagentThis.stoppingDistance = Inventory.s_instance.CombatRange;
+        }
+    }
 
     public Vector3 position
     {
@@ -100,15 +103,5 @@ public class PlayerMovement : MonoBehaviourTrans
         {
             return transform.position;
         }
-    }
-
-    public void Blink()
-    {
-            m_animatorThis.SetTrigger("tBlink");
-    }
-
-    public void Talking(bool b)
-    {
-        m_animatorThis.SetBool("bIsTalking", b);
     }
 }
