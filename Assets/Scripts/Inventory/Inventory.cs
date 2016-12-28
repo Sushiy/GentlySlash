@@ -2,10 +2,17 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class MoveTargetView : MonoBehaviour {
+
+public class InventoryScript : MonoBehaviourTrans
+{
+    private Weapon m_weaponFirst;
+    private Weapon m_weaponSecond;
+
+    private int iActiveWeapon;
 
 	// Use this for initialization
-	void Start () {
+	void Start ()
+    {
 		
 	}
 	
