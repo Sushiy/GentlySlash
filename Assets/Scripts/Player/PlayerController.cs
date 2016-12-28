@@ -4,11 +4,11 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviourTrans
 {
-    PlayerMovement m_playerMovementThis;
+    PlayerModel m_playerModelThis;
 
     private void Start()
     {
-        m_playerMovementThis = GetComponent<PlayerMovement>();
+        m_playerModelThis = GetComponent<PlayerModel>();
     }
 
     // Update is called once per frame
@@ -22,7 +22,7 @@ public class PlayerController : MonoBehaviourTrans
             if (Physics.Raycast(Camera.main.ScreenPointToRay(v3MousePos), out rchitClick))
             {
                 ClickCircleFX.s_instance.PlayParticleSystem(rchitClick.point); 
-                m_playerMovementThis.SetTarget(rchitClick);
+                m_playerModelThis.ClickAction(rchitClick);
                     
             }
         }

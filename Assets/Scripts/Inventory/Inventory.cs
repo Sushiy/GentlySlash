@@ -9,6 +9,7 @@ public class Inventory : MonoBehaviourTrans
     public float m_fStandardStoppingDistance = 2.0f;
 
     private Weapon[] m_weaponSlots;
+    private int m_iNumOfSlots = 2;
     private int m_iActiveWeapon;
 
 	// Use this for initialization
@@ -24,22 +25,21 @@ public class Inventory : MonoBehaviourTrans
 		
 	}
 
-    public void PickupWeapon(Weapon _weapon)
+    public void TakeWeapon(Weapon _weapon)
     {
-        if(ActiveWeapon == null)
+        if(m_weaponSlots[m_iActiveWeapon] == null || (m_weaponSlots[m_iActiveWeapon] != null && m_weaponSlots[m_iNumOfSlots - m_iActiveWeapon] != null))
         {
             m_weaponSlots[m_iActiveWeapon] = _weapon;
         }
-
         else
         {
-
+            m_weaponSlots[m_iNumOfSlots - m_iActiveWeapon] = _weapon;
         }
     }
 
     public void SwitchToWeapon(int _index)
     {
-        if(_index >= 0 && _index < m_weaponSlots.Length)
+        if(_index >= 0 && _index < m_iNumOfSlots)
             m_iActiveWeapon = _index;
     }
 

@@ -87,27 +87,12 @@ public class PlayerMovement : MonoBehaviourTrans
         }
 	}
 
-	public void SetTarget(RaycastHit _rchitClick)
+	public void SetTarget(Vector3 _v3Target, float _fStoppingDistance)
     {
-        Vector3 v3TargetPos;
         m_bHasArrived = false;
-
-        GameObject goClicked = _rchitClick.collider.gameObject;
-        if (goClicked.layer == 10 /*Enemy*/)
-        {
-            m_navmeshagentThis.stoppingDistance = Inventory.s_instance.CombatRange;
-            v3TargetPos = goClicked.transform.position;
-        }
-        else
-        {
-            m_navmeshagentThis.stoppingDistance = 0;
-            v3TargetPos = _rchitClick.point;
-        }
-
-        v3TargetPos.y = 0;
-        m_v3Target = v3TargetPos;
-		m_navmeshagentThis.SetDestination (m_v3Target);
-        
+        m_navmeshagentThis.stoppingDistance = _fStoppingDistance;
+        m_v3Target = _v3Target;
+		m_navmeshagentThis.SetDestination (m_v3Target);      
     }
 
     public Vector3 position
