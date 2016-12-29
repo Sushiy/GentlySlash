@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.AI;
 using System.Collections;
+using UniRx;
 
 [RequireComponent(typeof(NavMeshAgent))]
 public class PlayerMovement : MonoBehaviourTrans 
@@ -10,7 +11,7 @@ public class PlayerMovement : MonoBehaviourTrans
 
 	Vector3 m_v3Target;
 
-	bool m_bHasArrived = false;
+	public ReactiveProperty<bool> m_bHasArrived = new ReactiveProperty<bool>(false);
 
     public float m_fMovementSpeed = 3.5f; //3.5f is the standard speed for NavMeshAgents
     public float m_fTurningSpeed = 120.0f; //120.0f is the standard turningSpeed
@@ -62,12 +63,12 @@ public class PlayerMovement : MonoBehaviourTrans
         //If the agent is still moving, has still some Distance to go or is still calculating his path, he has not arrived yet set. Also set the lookDirection to the velocity direction
         if (m_navmeshagentThis.velocity.magnitude > 0 || fDist > float.Epsilon || m_navmeshagentThis.pathPending)
         {
-            m_bHasArrived = false;
+            m_bHasArrived.Value = false;
         }
         //The Agent has arrived if the remaining distance is almost 0 and its path is complete
         else if (fDist <= float.Epsilon && m_navmeshagentThis.pathStatus == NavMeshPathStatus.PathComplete)
         {
-            m_bHasArrived = true;
+            m_bHasArrived.Value = true;
         }
     }
 
@@ -75,7 +76,7 @@ public class PlayerMovement : MonoBehaviourTrans
 	{
         get
         {
-            return m_bHasArrived;
+            return m_bHasArrived.Value;
         }
 	}
 
@@ -89,10 +90,16 @@ public class PlayerMovement : MonoBehaviourTrans
 
 	public void SetTarget(Vector3 _v3Target, float _fStoppingDistance)
     {
-        m_bHasArrived = false;
+        m_bHasArrived.Value = false;
         m_navmeshagentThis.stoppingDistance = _fStoppingDistance;
         m_v3Target = _v3Target;
 		m_navmeshagentThis.SetDestination (m_v3Target);      
+    }
+
+    public void SetCombatTarget(Vector3 _v3Target, float _fStoppingDistance)
+    {
+        Vector3 v3CombatTarget = _v3Target + (transform.position - _v3Target).normalized * _fStoppingDistance;
+        SetTarget(v3CombatTarget, 0.0f);
     }
 
     public Vector3 position
