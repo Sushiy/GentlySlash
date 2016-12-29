@@ -8,20 +8,19 @@ public class Inventory : MonoBehaviourTrans
     public float m_fStandardStoppingDistance = 2.0f;
     
     private Weapon[] m_weaponSlots;
-    private const int m_iNumOfSlots = 2;
-    public ReactiveProperty<int> m_iActiveWeapon;
+    public int m_iNumOfSlots = 2;
+    public ReactiveProperty<int> m_iActiveWeapon = new ReactiveProperty<int>(0);
 
 	// Use this for initialization
 	void Awake ()
     {
-        m_weaponSlots = new Weapon[2];
-        m_iActiveWeapon = new ReactiveProperty<int>(0);
+        m_weaponSlots = new Weapon[m_iNumOfSlots];
     }
 
     //This Method is called, when a new weapon is supposed to be picked up
     public void TakeWeapon(Weapon _weapon)
     {
-        int iNonActiveWeapon = m_iNumOfSlots - 1 - m_iActiveWeapon.Value;
+        int iNonActiveWeapon = Mathf.Clamp(m_iNumOfSlots - 1 - m_iActiveWeapon.Value, 0, m_iNumOfSlots-1);
         //If the active weapon slot is empty or both slots are full put the new weapon in your active slot. In the latter case the old weapon is replaced
         if (m_weaponSlots[m_iActiveWeapon.Value] == null || m_weaponSlots[iNonActiveWeapon] != null)
         {
