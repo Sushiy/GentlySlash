@@ -6,13 +6,13 @@ using UniRx;
 [RequireComponent(typeof(Animator))]
 public class AnimationViewer : MonoBehaviourTrans
 {
-    PlayerModel m_playermodelThis;
+    Model m_modelThis;
     Animator m_animatorThis;
 
 	// Use this for initialization
 	void Start ()
     {
-        m_playermodelThis = GetComponent<PlayerModel>();
+        m_modelThis = GetComponent<Model>();
         m_animatorThis = GetComponent<Animator>();
 
         if (m_animatorThis == null)
@@ -21,30 +21,31 @@ public class AnimationViewer : MonoBehaviourTrans
             return;
         }
 
-        if (m_playermodelThis == null)
+        if (m_modelThis == null)
         {
             Debug.LogError("AnimationViewer of " + gameObject.name + " could not find an PlayerModel");
             return;
         }
 
-        m_playermodelThis.m_playerstateCurrent
+        m_modelThis.m_modelstateCurrent
         .Subscribe(m_playerstateCurrent => PlayerStateChanged(m_playerstateCurrent));
 
-        m_playermodelThis.m_bIsInRange
+        m_modelThis.m_bIsInRange
         .Subscribe(m_bIsInRange => IsInRangeChanged(m_bIsInRange));
     }
 
     private void Update()
     {
-        m_animatorThis.SetBool("bMoving", m_playermodelThis.Movement.Velocity.magnitude > 0);
-        m_animatorThis.SetFloat("fVelocity", m_playermodelThis.Movement.NormalizedVelocityMagnitude);
+        m_animatorThis.SetBool("bMoving", m_modelThis.Movement.Velocity.magnitude > 0);
+        m_animatorThis.SetFloat("fVelocity", m_modelThis.Movement.NormalizedVelocityMagnitude);
     }
 
-    void PlayerStateChanged(PlayerState playerstate)
+    void PlayerStateChanged(ModelState _playerstate)
     {
-        if (playerstate != PlayerState.Attacking)
+        if (_playerstate != ModelState.Attacking)
             m_animatorThis.SetBool("bAttacking", false);
-        if (playerstate == PlayerState.Dead)
+
+        if (_playerstate == ModelState.Dead)
             m_animatorThis.SetTrigger("tDied");
     }
 
@@ -58,13 +59,13 @@ public class AnimationViewer : MonoBehaviourTrans
 
     public void CheckWeaponType()
     {
-        m_animatorThis.SetBool("bIsUnarmed", m_playermodelThis.Inventory.ActiveWeapon == null);
+        m_animatorThis.SetBool("bIsUnarmed", m_modelThis.Inventory.ActiveWeapon == null);
         m_animatorThis.SetFloat("fAttackSpeed", 1.0f);
 
-        if (m_playermodelThis.Inventory.ActiveWeapon != null)
+        if (m_modelThis.Inventory.ActiveWeapon != null)
         {
-            m_animatorThis.SetBool("bHasPoleWeapon", m_playermodelThis.Inventory.ActiveWeapon.m_bIsPoleWeapon);
-            m_animatorThis.SetFloat("fAttackSpeed", m_playermodelThis.Inventory.ActiveWeapon.m_fAttackSpeed);
+            m_animatorThis.SetBool("bHasPoleWeapon", m_modelThis.Inventory.ActiveWeapon.m_bIsPoleWeapon);
+            m_animatorThis.SetFloat("fAttackSpeed", m_modelThis.Inventory.ActiveWeapon.m_fAttackSpeed);
         }
     }
 }

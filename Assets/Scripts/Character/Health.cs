@@ -19,15 +19,19 @@ public class Health : MonoBehaviourTrans
     
     void Update()
     {
-        if(m_bRegenAllowed.Value)
+        if(m_bRegenAllowed.Value && m_fHealth.Value <= m_fMaxHealth)
+        {
             m_fHealth.Value += m_fRegenRate * Time.deltaTime;
+            m_fHealth.Value = Mathf.Clamp(m_fHealth.Value, 0, m_fMaxHealth);
+        }
     }
 
     public void TakeDamage(float _fDamage)
     {
         m_fHealth.Value = Mathf.Max(m_fHealth.Value - _fDamage, 0);
         StopAllCoroutines();
-        StartCoroutine(DelayRegeneration());
+        if(m_fHealth.Value > 0)
+            StartCoroutine(DelayRegeneration());
     }
 
     public IEnumerator DelayRegeneration()

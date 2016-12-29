@@ -26,13 +26,7 @@ public class Movement : MonoBehaviourTrans
             m_navmeshagentThis.angularSpeed = m_fTurningSpeed;
         }
 	}
-	
-	// Update is called once per frame
-	void Update() 
-	{
-        Debug.DrawRay(transform.position, transform.forward * m_navmeshagentThis.stoppingDistance, Color.red);
-	}
-
+    
     void LateUpdate()
     {
         Debug.DrawLine(transform.position, m_v3Target);
@@ -72,7 +66,7 @@ public class Movement : MonoBehaviourTrans
     //Move to the targetposition
     public void MoveTowards(Vector3 _v3Target)
     {
-        m_bHasArrived.Value = false;
+        //m_bHasArrived.Value = false;
         m_v3Target = _v3Target;
         m_navmeshagentThis.SetDestination(m_v3Target);
     }
@@ -80,6 +74,13 @@ public class Movement : MonoBehaviourTrans
     //Calculate a point within combat range along the path, then move to it
     public void MoveToAttack(Vector3 _v3Target, float _fCombatRange)
     {
+        float fActualRange = _fCombatRange - 0.1f;
+        if (Vector3.Distance(_v3Target, Position) < fActualRange)
+        {
+            MoveTowards(Position);
+            RotateTowards(_v3Target);
+            return;
+        }
         NavMeshPath navmeshpath = new NavMeshPath();    //Initialize the NavMeshPath
         Agent.CalculatePath(_v3Target, navmeshpath);    //Calculate a path to the target
         Agent.path = navmeshpath;
@@ -87,7 +88,7 @@ public class Movement : MonoBehaviourTrans
 
         Agent.SamplePathPosition(Agent.areaMask, Agent.remainingDistance, out navmeshhit); //sample the last point of the path
         //Go through the path from end and sample each point to check if it is in range of the enemy
-        for (float fRange = Agent.remainingDistance - fAttackRangeSampleRate; (navmeshhit.position - _v3Target).magnitude < _fCombatRange - 0.1f ; fRange -= fAttackRangeSampleRate)
+        for (float fRange = Agent.remainingDistance - fAttackRangeSampleRate; (navmeshhit.position - _v3Target).magnitude < fActualRange; fRange -= fAttackRangeSampleRate)
         {
             //Sample each point until the distance to the target has been maxed out
             Agent.SamplePathPosition(Agent.areaMask, fRange, out navmeshhit);
@@ -97,11 +98,11 @@ public class Movement : MonoBehaviourTrans
     }
 
     //Rotates the agent towards the given Target
-    private void RotateTowards(Vector3 _v3Target)
+    public void RotateTowards(Vector3 _v3Target)
     {
         Vector3 v3Direction = (_v3Target - transform.position).normalized;
         Quaternion qLookRotation = Quaternion.LookRotation(v3Direction);
-        transform.rotation = Quaternion.Slerp(transform.rotation, qLookRotation, Time.deltaTime * m_fTurningSpeed);
+        transform.rotation = qLookRotation;
     }
 
     public NavMeshAgent Agent
