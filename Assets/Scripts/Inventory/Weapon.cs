@@ -11,4 +11,5 @@ public class Weapon : ScriptableObject
     public float m_fAttackSpeed;    //Attacks per Second
     public GameObject m_goWeaponPrefab;  //The Model used for this Weapon
     public Sprite m_spriteUI;       //Sprite to be used in UI
+    public bool m_bIsPoleWeapon;    //Is this weapon long(like a spear); used for animation
 }

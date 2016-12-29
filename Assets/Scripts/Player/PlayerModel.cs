@@ -64,7 +64,21 @@ public class PlayerModel : MonoBehaviourTrans
             if (CurrentState == PlayerState.Attacking)
             {
                 m_animatorThis.SetBool("bAttacking", true);
+
+                CheckWeaponType();
             }
+        }
+    }
+
+    public void CheckWeaponType()
+    {
+        m_animatorThis.SetBool("bIsUnarmed", Inventory.s_instance.ActiveWeapon == null);
+        m_animatorThis.SetFloat("fAttackSpeed", 1.0f);
+
+        if (Inventory.s_instance.ActiveWeapon != null)
+        {
+            m_animatorThis.SetBool("bHasPoleWeapon", Inventory.s_instance.ActiveWeapon.m_bIsPoleWeapon);
+            m_animatorThis.SetFloat("fAttackSpeed", Inventory.s_instance.ActiveWeapon.m_fAttackSpeed);
         }
     }
 
@@ -116,6 +130,7 @@ public class PlayerModel : MonoBehaviourTrans
     {
         Debug.Log("HitEvent" + " called at: " + (Time.time - Animationtimer));
         Animationtimer = Time.time;
+        CheckWeaponType();
     }
     public void MotionEndEvent()
     {
