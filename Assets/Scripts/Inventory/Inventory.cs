@@ -5,22 +5,16 @@ using UniRx;
 
 public class Inventory : MonoBehaviourTrans
 {
-    public static Inventory s_instance;
-
     public float m_fStandardStoppingDistance = 2.0f;
-
-    [HideInInspector]
-    public Weapon[] m_weaponSlots;
-
+    
+    private Weapon[] m_weaponSlots;
     private const int m_iNumOfSlots = 2;
     public ReactiveProperty<int> m_iActiveWeapon;
 
 	// Use this for initialization
 	void Awake ()
     {
-        s_instance = this;
         m_weaponSlots = new Weapon[2];
-
         m_iActiveWeapon = new ReactiveProperty<int>(0);
     }
 
@@ -67,6 +61,14 @@ public class Inventory : MonoBehaviourTrans
                 return ActiveWeapon.m_fAttackRange;
             else
                 return m_fStandardStoppingDistance;
+        }
+    }
+
+    public Weapon[] Weapons
+    {
+        get
+        {
+            return m_weaponSlots;
         }
     }
 }

@@ -7,14 +7,15 @@ using UniRx;
 [RequireComponent(typeof(Slider))]
 public class HealthView : MonoBehaviourTrans
 {
-    Slider m_sliderThis;
+    public Health m_healthThis; //HealthComponent we take our values from 
+    Slider m_sliderThis;    //SliderUI Element we post our Value to
 
     void Start()
     {
         m_sliderThis = GetComponent<Slider>();
-        m_sliderThis.maxValue = PlayerModel.s_instance.m_fMaxHealth;
+        m_sliderThis.maxValue = m_healthThis.m_fMaxHealth;
 
-        PlayerModel.s_instance.m_fHealth
+        m_healthThis.m_fHealth
         .Subscribe(m_fHealth => m_sliderThis.value = m_fHealth);
     }
 }

@@ -5,7 +5,7 @@ using UnityEngine;
 public class CameraFollow : MonoBehaviourTrans
 {
     [SerializeField]
-    private PlayerMovement m_playerMovement;
+    private Movement m_playerMovement;
 
 	// Use this for initialization
 	void Start ()
@@ -19,6 +19,6 @@ public class CameraFollow : MonoBehaviourTrans
 	// Update is called once per frame
 	void Update ()
     {
-        transform.position = m_playerMovement.position;
+        transform.position = m_playerMovement.Position;
 	}
 }
