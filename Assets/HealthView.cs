@@ -12,9 +12,9 @@ public class HealthView : MonoBehaviourTrans
     void Start()
     {
         m_sliderThis = GetComponent<Slider>();
-        m_sliderThis.maxValue = PlayerModel.s_instance.m_iMaxHealth;
+        m_sliderThis.maxValue = PlayerModel.s_instance.m_fMaxHealth;
 
-        PlayerModel.s_instance.m_iHealth
-        .Subscribe(m_iHealth => m_sliderThis.value = m_iHealth);
+        PlayerModel.s_instance.m_fHealth
+        .Subscribe(m_fHealth => m_sliderThis.value = m_fHealth);
     }
 }
