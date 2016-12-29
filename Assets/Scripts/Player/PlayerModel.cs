@@ -109,4 +109,9 @@ public class PlayerModel : MonoBehaviourTrans
     {
         m_fHealth.Value = Mathf.Max(m_fHealth.Value - _iDamage, 0);
     }
+
+    public void HitEvent(string s)
+    {
+        Debug.Log("HitEvent: " + s + " called at: " + Time.time);
+    }
 }
