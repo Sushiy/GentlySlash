@@ -44,6 +44,8 @@ public class AnimationViewer : MonoBehaviourTrans
     {
         if (playerstate != PlayerState.Attacking)
             m_animatorThis.SetBool("bAttacking", false);
+        if (playerstate == PlayerState.Dead)
+            m_animatorThis.SetTrigger("tDied");
     }
 
     void IsInRangeChanged(bool _bInRange)

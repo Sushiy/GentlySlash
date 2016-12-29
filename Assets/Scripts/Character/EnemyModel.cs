@@ -14,6 +14,7 @@ public class EnemyModel : MonoBehaviourTrans
     #endregion
 
     public Weapon m_weaponHeld;
+    public float m_fPlayerDetectionRange = 5.0f;
 
     void Awake()
     {
@@ -33,4 +34,37 @@ public class EnemyModel : MonoBehaviourTrans
     {
 		
 	}
+
+    public bool IsPlayerInDetectionRange()
+    {
+        if (Vector3.Distance(PlayerModel.s_instance.Movement.Position, transform.position) <= m_fPlayerDetectionRange)
+        {
+            return true;
+        }
+        return false;
+    }
+
+    public Health Health
+    {
+        get
+        {
+            return m_healthThis;
+        }
+    }
+
+    public Movement Movement
+    {
+        get
+        {
+            return m_movementThis;
+        }
+    }
+
+    public Inventory Inventory
+    {
+        get
+        {
+            return m_inventoryThis;
+        }
+    }
 }

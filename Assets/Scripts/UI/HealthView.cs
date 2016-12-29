@@ -17,5 +17,15 @@ public class HealthView : MonoBehaviourTrans
 
         m_healthThis.m_fHealth
         .Subscribe(m_fHealth => m_sliderThis.value = m_fHealth);
+        m_healthThis.m_bRegenAllowed
+        .Subscribe(m_bRegenAllowed => DarkenSlider(m_bRegenAllowed));
+    }
+
+    void DarkenSlider(bool b)
+    {
+        if (!b)
+            m_sliderThis.targetGraphic.color = new Color(150.0f/255.0f, 0, 0);
+        else
+            m_sliderThis.targetGraphic.color = new Color(200.0f / 255.0f, 0, 0); ;
     }
 }

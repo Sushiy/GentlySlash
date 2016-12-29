@@ -15,15 +15,12 @@ public class Behaviour : ParentNode
 	public Behaviour()
 	{
 		m_listtasknodeActive = new List<TaskNode>();
-		Debug.Log ("Behaviour constructed");
 	}
 
     public void StartBehaviour()
     {
-        Debug.Log("Start Behaviour");
         if (m_childnodeRoot == null)
         {
-            Debug.Log("Behaviour has no root");
             return;
         }
 

@@ -9,7 +9,8 @@ public enum PlayerState
     Idle = 0,
     Walking,
     PickingUp,
-    Attacking
+    Attacking,
+    Dead
 }
 
 [RequireComponent(typeof(Movement))]
@@ -29,9 +30,10 @@ public class PlayerModel : MonoBehaviourTrans
 
     WeaponPickup m_weaponPickUp;    //The weapon you are supposed to pickup. This is only needed for PickingUp State
 
-    Vector3 v3Enemy;            //The Enemy (TODO replace with enemymodel)
+    EnemyModel m_enemyCurrent;            //The Enemy you are currently trying to attack
     public ReactiveProperty<bool> m_bIsInRange = new ReactiveProperty<bool>(false);        //Is the Player in CombatRange
 
+    float time;
     void Awake()
     {
         s_instance = this;
@@ -45,7 +47,55 @@ public class PlayerModel : MonoBehaviourTrans
         m_movementThis.m_bHasArrived
         .Where(m_bHasArrived => m_bHasArrived == true)
         .Subscribe(m_bHasArrived => HasArrived());
+
+        m_healthThis.m_fHealth
+        .Where(m_fHealth => m_fHealth <= 0)
+        .Subscribe(m_fHealth => Die());
     }
+
+    public void ClickAction(RaycastHit _rchitClick)
+    {
+        Vector3 v3TargetPos;
+        GameObject goClicked = _rchitClick.collider.gameObject;
+        if (goClicked.layer == 10 /*Enemy*/)
+        {
+            v3TargetPos = goClicked.transform.position;
+            v3TargetPos.y = 0;
+            m_enemyCurrent = goClicked.GetComponent<EnemyModel>();
+            m_movementThis.MoveToAttack(v3TargetPos, Inventory.CombatRange);
+            ChangeToState(PlayerState.Attacking);
+            CheckRange();
+        }
+
+        if (goClicked.layer == 9 /*Weapon*/)
+        {
+            v3TargetPos = goClicked.transform.position;
+            v3TargetPos.y = 0;
+            m_movementThis.MoveTowards(v3TargetPos);
+            m_weaponPickUp = goClicked.GetComponent<WeaponPickup>();
+            ChangeToState(PlayerState.PickingUp);
+        }
+        if (goClicked.layer == 8 /*Ground*/)
+        {
+            v3TargetPos = _rchitClick.point;
+            v3TargetPos.y = 0;
+            m_movementThis.MoveTowards(v3TargetPos);
+            ChangeToState(PlayerState.Walking);
+        }
+
+    }
+
+    private void ChangeToState(PlayerState _playerstate)
+    {
+        m_playerstateCurrent.Value = _playerstate;
+    }
+
+    private void Die()
+    {
+        ChangeToState(PlayerState.Dead);
+        Health.m_bRegenAllowed.Value = false;
+    }
+
 
     public void HasArrived()
     {
@@ -63,41 +113,10 @@ public class PlayerModel : MonoBehaviourTrans
         }
     }
 
+
     private void CheckRange()
     {
-        m_bIsInRange.Value = (transform.position - v3Enemy).magnitude <= Inventory.CombatRange;
-    }
-
-    public void ClickAction(RaycastHit _rchitClick)
-    {
-        Vector3 v3TargetPos;
-        GameObject goClicked = _rchitClick.collider.gameObject;
-        if (goClicked.layer == 10 /*Enemy*/)
-        {
-            v3TargetPos = goClicked.transform.position;
-            v3TargetPos.y = 0;
-            v3Enemy = v3TargetPos;
-            m_movementThis.MoveToAttack(v3TargetPos, Inventory.CombatRange);
-            m_playerstateCurrent.Value = PlayerState.Attacking;
-            CheckRange();
-        }
-
-        if (goClicked.layer == 9 /*Weapon*/)
-        {
-            v3TargetPos = goClicked.transform.position;
-            v3TargetPos.y = 0;
-            m_movementThis.MoveTowards(v3TargetPos);
-            m_weaponPickUp = goClicked.GetComponent<WeaponPickup>();
-            m_playerstateCurrent.Value = PlayerState.PickingUp;
-        }
-        if (goClicked.layer == 8 /*Ground*/)
-        {
-            v3TargetPos = _rchitClick.point;
-            v3TargetPos.y = 0;
-            m_movementThis.MoveTowards(v3TargetPos);
-            m_playerstateCurrent.Value = PlayerState.Walking;
-        }
-
+        m_bIsInRange.Value = (transform.position - m_enemyCurrent.Movement.Position).magnitude <= Inventory.CombatRange;
     }
 
     //Public Properties
@@ -133,10 +152,24 @@ public class PlayerModel : MonoBehaviourTrans
         }
     }
 
+    public bool IsDead
+    {
+        get
+        {
+            return (Health.m_fHealth.Value <= 0) ? true : false;
+        }
+    }
+
     //Animation EventReceiver
     public void HitEvent()
     {
+        Debug.Log("Hit at:" + (Time.time - time));
+        time = Time.time;
         CheckRange();
+        if(m_bIsInRange.Value)
+        {
+            m_enemyCurrent.Health.TakeDamage(Inventory.ActiveWeapon.m_fDamage);
+        }
     }
 
     public void MotionEndEvent()
