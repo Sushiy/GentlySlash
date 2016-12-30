@@ -29,12 +29,6 @@ public class Movement : MonoBehaviourTrans
     
     void LateUpdate()
     {
-        Debug.DrawLine(transform.position, m_v3Target);
-        for(int i = 0; i < m_navmeshagentThis.path.corners.Length-1; i++)
-        {
-            Debug.DrawLine(m_navmeshagentThis.path.corners[i], m_navmeshagentThis.path.corners[i + 1], Color.red);
-        }
-
         //Check if the NavMeshAgent is Null or not on the Mesh
         if (m_navmeshagentThis == null)
         {

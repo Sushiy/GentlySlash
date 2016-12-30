@@ -129,10 +129,8 @@ public class AIModel : Model
         NavMeshHit navmeshhit;    // stores the output in a variable called hit
 
         //This shoots a ray and checks if it hits something before reaching the FleeTarget
-        if (NavMesh.Raycast(transform.position, v3FleeTarget, out navmeshhit, Movement.Agent.areaMask))
-            Movement.MoveTowards(navmeshhit.position);
-        else
-            Movement.MoveTowards(navmeshhit.position);
+        NavMesh.Raycast(transform.position, v3FleeTarget, out navmeshhit, Movement.Agent.areaMask);
+        Movement.MoveTowards(navmeshhit.position);
     }
 
     public float FleeTimeStart

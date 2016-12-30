@@ -11,12 +11,12 @@ public class TargetViewer : MonoBehaviourTrans
 	void Start ()
     {
         PlayerModel.s_instance.m_modelstateCurrent
-        .Where(m_modelstateCurrent => m_modelstateCurrent == ModelState.Attacking)
         .Subscribe(m_modelstateCurrent => ToggleTarget());
+        m_goTarget.SetActive(false);
 	}
 
     void ToggleTarget()
     {
-        m_goTarget.SetActive(PlayerModel.s_instance.Opponent == m_modelThis && m_modelThis.CurrentState != ModelState.Dead);
+        m_goTarget.SetActive(PlayerModel.s_instance.Opponent == m_modelThis && PlayerModel.s_instance.CurrentState == ModelState.Attacking && m_modelThis.CurrentState != ModelState.Dead);
     }
 }
