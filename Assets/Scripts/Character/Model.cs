@@ -94,17 +94,20 @@ public class Model : MonoBehaviourTrans
     public void HitEvent()
     {
         CheckRange();
-        if (m_bIsInRange.Value)
+        if (m_bIsInRange.Value && Vector3.Angle(transform.forward, (m_modelOpponent.Movement.Position - transform.position)) <= 30)
         {
             float fDamage = Inventory.ActiveWeapon != null ? Inventory.ActiveWeapon.m_fDamage : m_fUnarmedDamage;
             m_modelOpponent.Health.TakeDamage(fDamage);
         }
     }
 
-    //This Event is actually useless, but it is needed to time Animations correctly
+    //Turn to the opponent at the end of your swing
     public void MotionEndEvent()
     {
-
+        if (m_bIsInRange.Value)
+        {
+            Movement.RotateTowards(m_modelOpponent.Movement.Position);
+        }
     }
 
     //public Properties
@@ -137,6 +140,14 @@ public class Model : MonoBehaviourTrans
         get
         {
             return m_modelstateCurrent.Value;
+        }
+    }
+
+    public Model Opponent
+    {
+        get
+        {
+            return m_modelOpponent;
         }
     }
 }
