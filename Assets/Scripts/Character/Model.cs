@@ -24,7 +24,7 @@ public class Model : MonoBehaviourTrans
     public ReactiveProperty<ModelState> m_modelstateCurrent = new ReactiveProperty<ModelState>(ModelState.Idle);    //Current State of the Player, starts Idle
 
     protected Model m_modelOpponent;            //The Enemy you are currently trying to attack
-    public ReactiveProperty<bool> m_bIsInRange = new ReactiveProperty<bool>(false);        //Is the Player in CombatRange
+    public ReactiveProperty<bool> m_bIsInCombatRange = new ReactiveProperty<bool>(false);        //Is the Player in CombatRange
     [SerializeField]
     protected float m_fUnarmedDamage = 1.0f;
     
@@ -43,10 +43,11 @@ public class Model : MonoBehaviourTrans
         .Where(m_bHasArrived => m_bHasArrived == true)
         .Subscribe(m_bHasArrived => HasArrived());
 
-        //Subscribe to the IsInRange property of Movement and Stop the Model if it is true
-        m_bIsInRange
-        .Where(m_bIsInRange => m_bIsInRange == true)
-        .Subscribe(m_bIsInRange => Stop());
+
+        //Subscribe to the m_bIsInCombatRange property of Movement and Stop the Model if it is true
+        m_bIsInCombatRange
+        .Where(m_bIsInCombatRange => m_bIsInCombatRange == true)
+        .Subscribe(m_bIsInCombatRange => Movement.Stop());
 
         //Subscribe to the health property of Health and kill Model if it is 0
         m_healthThis.m_fHealth
@@ -69,31 +70,22 @@ public class Model : MonoBehaviourTrans
     //Die by changing to Deadstate and stop regeneration; Maybe Despawn the enemy later
     protected virtual void Die()
     {
-        Stop();
+        Movement.Stop();
         ChangeToState(ModelState.Dead);
         Health.m_bRegenAllowed.Value = false;
     }
 
+    //Has Arrived is very dependent on AI/Playerstates and therefore is implemented in the inheriting classes
     protected virtual void HasArrived()
     {
 
-    }
-
-    //Stop The Model by Moving "to itself" and then check for range
-    protected void Stop()
-    {
-        if(m_modelstateCurrent.Value == ModelState.Attacking)
-        {
-            Movement.MoveToAttack(m_modelOpponent.Movement.Position, Inventory.CombatRange);
-            
-        }
     }
 
     //Check if you are in CombatRange
     protected void CheckRange()
     {
         if(m_modelOpponent != null)
-            m_bIsInRange.Value = Vector3.Distance(transform.position, m_modelOpponent.Movement.Position) <= Inventory.CombatRange;
+            m_bIsInCombatRange.Value = Vector3.Distance(transform.position, m_modelOpponent.Movement.Position) <= Inventory.CombatRange;
     }
 
     //Animation EventReceiver
@@ -101,23 +93,24 @@ public class Model : MonoBehaviourTrans
     //This Event is triggered from the attack animation;
     public void HitEvent()
     {
-        if (m_bIsInRange.Value && Vector3.Angle(transform.forward, (m_modelOpponent.Movement.Position - transform.position)) <= 45)
+        if (m_bIsInCombatRange.Value && Vector3.Angle(transform.forward, (m_modelOpponent.Movement.Position - transform.position)) <= 60)
         {
             float fDamage = Inventory.ActiveWeapon != null ? Inventory.ActiveWeapon.m_fDamage : m_fUnarmedDamage;
             m_modelOpponent.Health.TakeDamage(fDamage);
         }
     }
 
-    //Turn to the opponent at the end of your swing
+    //Turn to the opponent at the end of your swing if you are still in range
     public void MotionEndEvent()
     {
-        if (m_bIsInRange.Value)
+        if (m_bIsInCombatRange.Value)
         {
-            Movement.RotateTowards(m_modelOpponent.Movement.Position);
+            Movement.LookAt(m_modelOpponent.Movement.Position);
         }
     }
 
-    //public Properties
+    //*************PUBLIC PROPERTIES**************************
+
     public Health Health
     {
         get

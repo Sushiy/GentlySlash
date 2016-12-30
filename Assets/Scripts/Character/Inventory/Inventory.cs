@@ -20,7 +20,8 @@ public class Inventory : MonoBehaviourTrans
     //This Method is called, when a new weapon is supposed to be picked up
     public void TakeWeapon(Weapon _weapon)
     {
-        int iNonActiveWeapon = Mathf.Clamp(m_iNumOfSlots - 1 - m_iActiveWeapon.Value, 0, m_iNumOfSlots-1);
+        int iNonActiveWeapon = Mathf.Clamp(m_iNumOfSlots - 1 - m_iActiveWeapon.Value, 0, m_iNumOfSlots-1);  //Calculate the index of the nonactive weapon
+
         //If the active weapon slot is empty or both slots are full put the new weapon in your active slot. In the latter case the old weapon is replaced
         if (m_weaponSlots[m_iActiveWeapon.Value] == null || m_weaponSlots[iNonActiveWeapon] != null)
         {

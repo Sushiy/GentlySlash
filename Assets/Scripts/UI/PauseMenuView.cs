@@ -6,11 +6,12 @@ using UniRx;
 
 public class PauseMenuView : MonoBehaviourTrans
 {
-    public GameObject m_goMenuPanel;
-	// Use this for initialization
+    public GameObject m_goMenuPanel;    //The MenuPanel
+
 	void Start ()
     {
-        MenuController.s_intance.m_bIsPaused
+        //Subscribe to The isPaused of the menumodel to activate and deactivate the panel
+        MenuController.s_instance.m_menumodel.m_bIsPaused
         .Subscribe(m_bIsPaused => m_goMenuPanel.SetActive(m_bIsPaused));
 	}
 }

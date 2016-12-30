@@ -14,26 +14,29 @@ public class Health : MonoBehaviourTrans
 
     void Awake()
     {
-        m_fHealth = new ReactiveProperty<float>(m_fMaxHealth);
+        m_fHealth = new ReactiveProperty<float>(m_fMaxHealth);  //Init the healtvalue with maxhealth
     }
     
     void Update()
     {
-        if(m_bRegenAllowed.Value && m_fHealth.Value <= m_fMaxHealth)
+        //if you are allowed to regenerate and you are below maximumhealth
+        if(m_bRegenAllowed.Value && m_fHealth.Value < m_fMaxHealth)
         {
-            m_fHealth.Value += m_fRegenRate * Time.deltaTime;
-            m_fHealth.Value = Mathf.Clamp(m_fHealth.Value, 0, m_fMaxHealth);
+            m_fHealth.Value += m_fRegenRate * Time.deltaTime;       //regenerate
+            m_fHealth.Value = Mathf.Clamp(m_fHealth.Value, 0, m_fMaxHealth);    //clamp to 0 and maxHealth
         }
     }
 
+    //Take the specified amount of damage
     public void TakeDamage(float _fDamage)
     {
         m_fHealth.Value = Mathf.Max(m_fHealth.Value - _fDamage, 0);
-        StopAllCoroutines();
-        if(m_fHealth.Value > 0)
-            StartCoroutine(DelayRegeneration());
+        StopAllCoroutines();    //Stop the Regeneration Delay if it's still running
+        if(m_fHealth.Value > 0) //if you aren't dead now
+            StartCoroutine(DelayRegeneration());    //start the regeneration delay
     }
-
+    
+    //Block regeneration for regendelay seconds
     public IEnumerator DelayRegeneration()
     {
         m_bRegenAllowed.Value = false;

@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UniRx;
 
+//This Debug Script shows the GameObject and current state of a character on a text
 public class StateView : MonoBehaviour
 {
     public Model m_model;

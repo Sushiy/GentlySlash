@@ -4,16 +4,21 @@ using UnityEngine;
 using UniRx;
 using BehaviourTree;
 
+//This class controls the AIBehaviour and creates the Behaviourtree
 public class AIController : MonoBehaviour
 {
-    public static float m_fTickRate = 0.25f;
-    AIModel m_aimodelThis;
-    AIBehaviour m_aibehaviourThis;
+    public static float m_fTickRate = 0.25f;    //the rate at which the AI is updated; in seconds
+    AIModel m_aimodelThis;                      //The AImodel to be controlled
+    AIBehaviour m_aibehaviourThis;              //The Behaviour to be used for this AI
 
     // Use this for initialization
     void Start()
     {
-        m_aimodelThis = GetComponent<AIModel>();
+        m_aimodelThis = GetComponent<AIModel>();    //Initialize the model
+
+
+#pragma warning disable 0219
+        //From here on the Behaviourtree is constructed; For more info on this you can find a graphic of the tree: 
         m_aibehaviourThis = new AIBehaviour(m_aimodelThis);
         {
             Selector selectorIdleOrAction = new Selector(m_aibehaviourThis);
@@ -43,10 +48,12 @@ public class AIController : MonoBehaviour
                     AttackTask attackTask = new AttackTask(selectorFleeOrFight, m_aibehaviourThis);
                 }
             }
-        }   
-        m_aibehaviourThis.StartBehaviour();
-        InvokeRepeating("UpdateAIBehaviour", m_fTickRate, m_fTickRate);
+        }
+#pragma warning restore 0219
+        m_aibehaviourThis.StartBehaviour(); //After constructing the Behaviour, start it
+        InvokeRepeating("UpdateAIBehaviour", m_fTickRate, m_fTickRate); //Start regularly updating the AI after one "tick"
 
+        //Subscribe to the Model to see if it is Dead in order to stop ticking
         m_aimodelThis.m_modelstateCurrent
         .Where(m_modelstateCurrent => m_modelstateCurrent == ModelState.Dead)
         .Subscribe(m_modelstateCurrent => CancelInvoke());
@@ -54,7 +61,7 @@ public class AIController : MonoBehaviour
 
     protected void UpdateAIBehaviour()
     {
-        m_aibehaviourThis.Tick();
-        m_aimodelThis.Tick();       
+        m_aibehaviourThis.Tick();   //Update the behaviour
+        m_aimodelThis.Tick();       //Update the model
     }
 }

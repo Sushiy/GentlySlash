@@ -23,7 +23,7 @@ namespace BehaviourTree
 
         public void ChildDone(ChildNode _child, bool _bChildResult)
         {
-            AIBehaviour.s_strBehaviourRun += "\n" + _child.GetType().ToString() + ":" + _bChildResult + "->";
+            AIBehaviour.s_strDebugBehaviourRun += "\n" + _child.GetType().ToString() + ":" + _bChildResult + "->";
             m_parent.ChildDone(this, !_bChildResult);
         }
 

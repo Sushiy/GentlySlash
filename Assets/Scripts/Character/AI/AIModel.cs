@@ -24,12 +24,15 @@ public class AIModel : Model
     protected override void Start()
     {
         base.Start();
+        //subscribe to my own statechange; because reactiveproperties!
         m_modelstateCurrent
         .Subscribe(m_modelstateCurrent => StateHasChanged());
 
+        //if you have a weapon, take it!
         if (m_weaponHeld != null)
             m_inventoryThis.TakeWeapon(m_weaponHeld);
-        m_modelOpponent = PlayerModel.s_instance;
+        
+        m_modelOpponent = PlayerModel.s_instance;   //Find your enemy!
     }
 
     //This is triggered whenever the state of the model changes
@@ -38,14 +41,14 @@ public class AIModel : Model
         switch(CurrentState)
         {
             case ModelState.Attacking:
-                Movement.MoveToAttack(PlayerModel.s_instance.Movement.Position, Inventory.CombatRange); //If you just changed into attacking state, move to target to attack
+                Movement.MoveToAttack(PlayerModel.s_instance.Movement.Position, Inventory.CombatRange, m_modelOpponent.Movement.Velocity); //If you just changed into attacking state, move to target to attack
                 break;
             case ModelState.Fleeing:
                 m_fFleeTimeStart = Time.time;   //if you just changed into fleeing state, start the fleetimer
                 FleeFromPlayer();
                 break;
             case ModelState.Idle:
-                Stop();
+                Movement.Stop();    //If you are idle why are you moving?!
                 break;
         }
     }
@@ -62,25 +65,25 @@ public class AIModel : Model
         //If you are attacking, try to rotate towards your target
         if (CurrentState == ModelState.Attacking)
         {
-            Movement.RotateTowards(m_modelOpponent.Movement.Position);
+            Movement.LookAt(m_modelOpponent.Movement.Position);
         }
     }
 
-
-
+    //This method replaces Update for the AI;
+    //It is called periodically at fixed intervals instead of every frame, because the AI doesn't need to "think" every frame
     public void Tick()
     {
         //if you are currently attacking
         if (CurrentState == ModelState.Attacking)
         {
-            if (!m_bIsInRange.Value)
+            if (!m_bIsInCombatRange.Value)
             {
                 if (Movement.Target != PlayerModel.s_instance.Movement.Position)
-                    Movement.MoveToAttack(PlayerModel.s_instance.Movement.Position, Inventory.CombatRange);
+                    Movement.MoveToAttack(PlayerModel.s_instance.Movement.Position, Inventory.CombatRange, m_modelOpponent.Movement.Velocity);
             }
             else
             {
-                Stop();
+                //Stop();
                 CheckRange();
             }
         }
@@ -94,20 +97,14 @@ public class AIModel : Model
             }
         }
     }
+
     protected override void Die()
     {
         base.Die();
-        CancelInvoke();
+        CancelInvoke(); //Cancel the AI Tick when you are dead
     }
 
-    public bool IsPlayerInDetectionRange
-    {
-        get
-        {
-            return Vector3.Distance(PlayerModel.s_instance.Movement.Position, transform.position) <= m_fPlayerDetectionRange;
-        }
-    }
-
+    //Draw the Detection Rangesphere
     protected void OnDrawGizmosSelected()
     {
         Gizmos.DrawWireSphere(transform.position, m_fPlayerDetectionRange);
@@ -139,6 +136,7 @@ public class AIModel : Model
         Movement.MoveTowards(navmeshhit.position);
     }
 
+    //*************PUBLIC PROPERTIES**************************
     public float FleeTimeStart
     {
         get
@@ -149,6 +147,14 @@ public class AIModel : Model
         set
         {
             m_fFleeTimeStart = value;
+        }
+    }
+
+    public bool IsPlayerInDetectionRange
+    {
+        get
+        {
+            return Vector3.Distance(PlayerModel.s_instance.Movement.Position, transform.position) <= m_fPlayerDetectionRange;
         }
     }
 }

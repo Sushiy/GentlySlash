@@ -28,7 +28,7 @@ namespace BehaviourTree
 
         public void ChildDone(ChildNode _child, bool _bChildResult)
         {
-            AIBehaviour.s_strBehaviourRun += _child.GetType().ToString() + ":" + _bChildResult + "->";
+            AIBehaviour.s_strDebugBehaviourRun += _child.GetType().ToString() + ":" + _bChildResult + "->";
             //if child returns true, try the next child
             //if there is no next child return true to parent
             if (_bChildResult)

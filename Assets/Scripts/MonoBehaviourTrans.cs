@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+//This class speeds up calls to transform.
 public class MonoBehaviourTrans : MonoBehaviour
 {
     Transform m_transThis;

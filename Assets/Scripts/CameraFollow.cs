@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+//Simple script always sets the cameraAnchor to the playerposition
 public class CameraFollow : MonoBehaviourTrans
 {
     [SerializeField]
