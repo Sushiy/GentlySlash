@@ -61,6 +61,12 @@ public class PlayerModel : Model
         }
     }
 
+    protected override void Die()
+    {
+        base.Die();
+        StartCoroutine(MenuController.s_intance.OpenPauseAfterDelay(3.0f));
+    }
+
     //This is triggered when the agent arrives at his target
     protected override void HasArrived()
     {

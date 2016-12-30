@@ -28,7 +28,7 @@ namespace BehaviourTree
 
         public void ChildDone(ChildNode _child, bool _bChildResult)
         {
-
+            AIBehaviour.s_strBehaviourRun += _child.GetType().ToString() + ":" + _bChildResult + "->";
             //if child returns true, try the next child
             //if there is no next child return true to parent
             if (_bChildResult)
@@ -55,7 +55,7 @@ namespace BehaviourTree
 
         public void Activate()
         {
-            Debug.Log("Sequence activated");
+            //Debug.Log("Sequence activated");
             if (m_listChildren.Count > 0)
             {
                 m_iCurrentChildIndex = 0;

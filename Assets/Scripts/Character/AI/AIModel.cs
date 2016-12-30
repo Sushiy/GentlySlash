@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 using UniRx;
 using BehaviourTree;
 
@@ -11,7 +12,7 @@ public class AIModel : Model
 {
     public Weapon m_weaponHeld;
     public float m_fPlayerDetectionRange = 10.0f;   //Range in Units in which the player is registered
-    public float m_fDamageBeforeFlee = 0.25f;   //percentage of Damage the AI can take before Fleeing
+    public float m_fDamageThreshhold = 0.75f;   //percentage of Damage at which AI flee
     public float m_fFleeTime = 8.0f;        //Time for which the AI will flee from the player (seconds)
 
     private float m_fFleeTimeStart = -Mathf.Infinity;
@@ -41,6 +42,10 @@ public class AIModel : Model
                 break;
             case ModelState.Fleeing:
                 m_fFleeTimeStart = Time.time;   //if you just changed into fleeing state, start the fleetimer
+                FleeFromPlayer();
+                break;
+            case ModelState.Idle:
+                Stop();
                 break;
         }
     }
@@ -51,7 +56,7 @@ public class AIModel : Model
         //If you are Fleeing, check if the player is still in your detection range, if so, keep fleeing, if not wait
         if (CurrentState == ModelState.Fleeing)
         {
-
+            FleeFromPlayer();
         }
 
         //If you are attacking, try to rotate towards your target
@@ -70,6 +75,17 @@ public class AIModel : Model
             {
                 Movement.MoveToAttack(PlayerModel.s_instance.Movement.Position, Inventory.CombatRange);
             }
+            else
+            {
+                CheckRange();
+            }
+        }
+        if (CurrentState == ModelState.Fleeing)
+        {
+            if (IsPlayerInDetectionRange)
+            {
+                FleeFromPlayer();
+            }
         }
     }
     protected override void Die()
@@ -78,18 +94,45 @@ public class AIModel : Model
         CancelInvoke();
     }
 
-    public bool IsPlayerInDetectionRange()
+    public bool IsPlayerInDetectionRange
     {
-        if (Vector3.Distance(PlayerModel.s_instance.Movement.Position, transform.position) <= m_fPlayerDetectionRange)
+        get
         {
-            return true;
+            return Vector3.Distance(PlayerModel.s_instance.Movement.Position, transform.position) <= m_fPlayerDetectionRange;
         }
-        return false;
     }
 
     protected void OnDrawGizmosSelected()
     {
         Gizmos.DrawWireSphere(transform.position, m_fPlayerDetectionRange);
+    }
+
+    private void FleeFromPlayer()
+    {   //http://answers.unity3d.com/questions/868003/navmesh-flee-ai-flee-from-player.html
+
+        float fFleeDistance = m_fPlayerDetectionRange * Random.Range(0.75f, 1.5f);
+        float fFleeArc = 90.0f;
+
+        //Temporarily turn AI facing away from player
+        Quaternion qTMP = transform.rotation;
+        transform.rotation = Quaternion.LookRotation(Movement.Position - m_modelOpponent.Movement.Position);
+
+        //Find a random direction within the given arc around the rotation
+        Vector3 v3targetDir = Quaternion.AngleAxis(Random.Range(-fFleeArc / 2, fFleeArc), Vector3.up) * transform.forward;
+        //Turn the AI back to allow it to turn around normally
+        transform.rotation = qTMP;
+
+        //Calculate a position directly away from the player, that is sufficiently far away (0.75 - 1.5 times the detectionrange)
+        Vector3 v3FleeTarget = transform.position + (v3targetDir * fFleeDistance);
+
+        //Now we need to find a point on the navmesh that is as far away in that direction as possible
+        NavMeshHit navmeshhit;    // stores the output in a variable called hit
+
+        //This shoots a ray and checks if it hits something before reaching the FleeTarget
+        if (NavMesh.Raycast(transform.position, v3FleeTarget, out navmeshhit, Movement.Agent.areaMask))
+            Movement.MoveTowards(navmeshhit.position);
+        else
+            Movement.MoveTowards(navmeshhit.position);
     }
 
     public float FleeTimeStart

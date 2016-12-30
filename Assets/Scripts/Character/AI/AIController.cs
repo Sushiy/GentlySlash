@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UniRx;
 using BehaviourTree;
 
 public class AIController : MonoBehaviour
@@ -15,34 +16,41 @@ public class AIController : MonoBehaviour
         m_aimodelThis = GetComponent<AIModel>();
         m_aibehaviourThis = new AIBehaviour(m_aimodelThis);
         {
-            Selector selectorDead = new Selector(m_aibehaviourThis);
+            Selector selectorIdleOrAction = new Selector(m_aibehaviourThis);
             {
-                AreYouDead conditionDead = new AreYouDead(selectorDead, m_aibehaviourThis);
-                Selector selectorFlee = new Selector(selectorDead);
+                Sequence sequenceConditionsOrIdle = new Sequence(selectorIdleOrAction);
                 {
-                    Selector selectorFlee2 = new Selector(selectorFlee);
+                    //if the player is dead => idle
+                    //if the player is not dead and not in range => idle
+                    //if the payer is not dead and in range => idle
+                    Selector selectorDeadOrNotInRange = new Selector(sequenceConditionsOrIdle);
+                        Condition_PlayerDead conditionDead = new Condition_PlayerDead(selectorDeadOrNotInRange, m_aibehaviourThis);
+                    Inverter inverterNotInRange = new Inverter(sequenceConditionsOrIdle);
+                        Condition_InDetectionRange conditionInRange = new Condition_InDetectionRange(selectorDeadOrNotInRange, m_aibehaviourThis);
+                    IdleTask idleTask = new IdleTask(sequenceConditionsOrIdle, m_aibehaviourThis);
+                }
+                Selector selectorFleeOrFight = new Selector(selectorIdleOrAction);
+                {
+                    Sequence sequenceConditionsThenFlee = new Sequence(selectorFleeOrFight);
                     {
-                        Sequence sequenceFlee = new Sequence(selectorFlee2);
+                        Selector selectorTimerOrHealth = new Selector(sequenceConditionsThenFlee);
                         {
-                            IsFleeDelayOver conditionFleeDelay = new IsFleeDelayOver(sequenceFlee, m_aibehaviourThis);
-                            IsHealthOverThreshhold conditionHealthHighEnough = new IsHealthOverThreshhold(sequenceFlee, m_aibehaviourThis);
+                            Condition_FleeTimerRunning conditionFleeDelay = new Condition_FleeTimerRunning(selectorTimerOrHealth, m_aibehaviourThis);
+                            Condition_HealthLow conditionHealthHighEnough = new Condition_HealthLow(selectorTimerOrHealth, m_aibehaviourThis);
                         }
-                        FleeTask fleetask = new FleeTask(selectorFlee2, m_aibehaviourThis);
+                        FleeTask fleetask = new FleeTask(sequenceConditionsThenFlee, m_aibehaviourThis);
                     }
-                    
-                    Selector selectorIdleOrAttack = new Selector(selectorFlee);
-                    {
-                        IdleTask idleTask = new IdleTask(selectorIdleOrAttack, m_aibehaviourThis);
-                        AttackTask attackTask = new AttackTask(selectorIdleOrAttack, m_aibehaviourThis);
-                    }
+                    AttackTask attackTask = new AttackTask(selectorFleeOrFight, m_aibehaviourThis);
                 }
             }
-
-        }
+        }   
         m_aibehaviourThis.StartBehaviour();
         InvokeRepeating("UpdateAIBehaviour", m_fTickRate, m_fTickRate);
-    }
 
+        m_aimodelThis.m_modelstateCurrent
+        .Where(m_modelstateCurrent => m_modelstateCurrent == ModelState.Dead)
+        .Subscribe(m_modelstateCurrent => CancelInvoke());
+    }
 
     protected void UpdateAIBehaviour()
     {

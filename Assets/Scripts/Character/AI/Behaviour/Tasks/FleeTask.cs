@@ -6,6 +6,7 @@ using UnityEngine;
 
 namespace BehaviourTree
 {
+    //Fleetask sets the Model to Fleeing and then returns true, can't do anything wrong when fleeing can you?
     public class FleeTask : TaskNode
     {
         ParentNode m_parent;
@@ -24,7 +25,6 @@ namespace BehaviourTree
         public void Activate()
         {
             m_behaviourRoot.activateTask(this);
-            m_aimodelSelf.Movement.MoveToAttack(PlayerModel.s_instance.Movement.Position, m_aimodelSelf.Inventory.CombatRange);
             m_aimodelSelf.ChangeToState(ModelState.Fleeing);
         }
 
@@ -33,9 +33,10 @@ namespace BehaviourTree
             m_behaviourRoot.deactivateTask(this);
         }
 
-        //Follow the Player
+        //Return True
         public void PerformTask()
         {
+            Deactivate();
             m_parent.ChildDone(this, true);
         }
     }

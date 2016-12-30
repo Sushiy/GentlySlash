@@ -64,6 +64,7 @@ public class Model : MonoBehaviourTrans
     //Die by changing to Deadstate and stop regeneration; Maybe Despawn the enemy later
     protected virtual void Die()
     {
+        Stop();
         ChangeToState(ModelState.Dead);
         Health.m_bRegenAllowed.Value = false;
     }

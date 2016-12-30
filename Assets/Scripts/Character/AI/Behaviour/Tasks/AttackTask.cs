@@ -4,6 +4,7 @@ using UnityEngine;
 
 namespace BehaviourTree
 {
+    //Attacktask sets the Model to Attacking and then returns true; Attacking is pretty straightforward
     public class AttackTask : TaskNode
     {
         ParentNode m_parent;
@@ -29,20 +30,12 @@ namespace BehaviourTree
         {
             m_behaviourRoot.deactivateTask(this);
         }
+        
 
-        //Follow the Player
         public void PerformTask()
         {
-            //If the Player leaves your DetectionRange Or the player is dead
-            //Return false
-            if (!m_aimodelSelf.IsPlayerInDetectionRange() || PlayerModel.s_instance.CurrentState == ModelState.Dead)
-            {
-                m_parent.ChildDone(this, false);
-            }
-            else
-            {
-                m_parent.ChildDone(this, true);
-            }
+            Deactivate();
+            m_parent.ChildDone(this, true);
         }
     }
 }

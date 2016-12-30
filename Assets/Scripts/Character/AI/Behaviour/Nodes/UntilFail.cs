@@ -24,7 +24,7 @@ namespace BehaviourTree
 
         public void ChildDone(ChildNode _child, bool _bChildResult)
         {
-
+            AIBehaviour.s_strBehaviourRun += "\n" + _child.GetType().ToString() + ":" + _bChildResult + "->";
             //if child returns true activate it again
             if (_bChildResult)
             {

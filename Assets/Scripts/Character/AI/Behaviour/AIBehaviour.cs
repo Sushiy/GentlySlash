@@ -7,6 +7,7 @@ namespace BehaviourTree
     //This is the base of any Behaviour
     public class AIBehaviour : ParentNode
     {
+        public static string s_strBehaviourRun = "Behaviour Durchlauf: "; 
         bool m_bIsRunning = false;
         ChildNode m_childnodeRoot;
         List<TaskNode> m_listtasknodeActive;
@@ -24,12 +25,11 @@ namespace BehaviourTree
 
         public void StartBehaviour()
         {
-            Debug.Log("StartBehaviour");
             if (m_childnodeRoot == null)
             {
                 return;
             }
-
+            s_strBehaviourRun = "Behaviour Durchlauf: ";
             m_childnodeRoot.Activate();
             m_bIsRunning = true;
         }
@@ -52,25 +52,27 @@ namespace BehaviourTree
         }
 
         //Set the RootNode
-        public void AddChild(ChildNode child)
+        public void AddChild(ChildNode _child)
         {
-            m_childnodeRoot = child;
+            m_childnodeRoot = _child;
         }
 
         //Callback from your ChildNode
-        public void ChildDone(ChildNode child, bool childResult)
+        public void ChildDone(ChildNode _child, bool _bChildResult)
         {
+            s_strBehaviourRun += "\n" + _child.GetType().ToString() + ":" + _bChildResult + "|";
+            //Debug.Log(s_strBehaviourRun);
             m_bIsRunning = false;
         }
 
-        public void activateTask(TaskNode t)
+        public void activateTask(TaskNode _task)
         {
-            m_listtasknodeActive.Add(t);
+            m_listtasknodeActive.Add(_task);
         }
 
-        public void deactivateTask(TaskNode t)
+        public void deactivateTask(TaskNode _task)
         {
-            m_listtasknodeActive.Remove(t);
+            m_listtasknodeActive.Remove(_task);
         }
 
 
@@ -79,9 +81,9 @@ namespace BehaviourTree
             return m_listtasknodeActive;
         }
 
-        public void SetIsRunning(bool b)
+        public void SetIsRunning(bool _b)
         {
-            m_bIsRunning = b;
+            m_bIsRunning = _b;
         }
 
         public bool GetIsRunning()

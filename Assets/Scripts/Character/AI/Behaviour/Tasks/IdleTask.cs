@@ -34,7 +34,8 @@ namespace BehaviourTree
         //Successfully Idle if the player is not in your detectionrange, else your fail
         public void PerformTask()
         {
-                m_parent.ChildDone(this, true);
+            Deactivate();
+            m_parent.ChildDone(this, true);
         }
     }
 }

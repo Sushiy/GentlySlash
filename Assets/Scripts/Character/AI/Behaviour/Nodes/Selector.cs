@@ -28,6 +28,7 @@ namespace BehaviourTree
 
         public void ChildDone(ChildNode _child, bool _bChildResult)
         {
+            AIBehaviour.s_strBehaviourRun += "\n" + _child.GetType().ToString() + ":" + _bChildResult + "->";
             //if child returns true, return true yourself
             if (_bChildResult)
             {
@@ -52,7 +53,7 @@ namespace BehaviourTree
 
         public void Activate()
         {
-            Debug.Log("Selector activated");
+            //Debug.Log("Selector activated");
             if (m_listChildren.Count > 0)
             {
                 m_iCurrentChildIndex = 0;
