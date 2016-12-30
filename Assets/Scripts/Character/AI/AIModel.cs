@@ -62,27 +62,33 @@ public class AIModel : Model
         //If you are attacking, try to rotate towards your target
         if (CurrentState == ModelState.Attacking)
         {
-            CheckRange();
             Movement.RotateTowards(m_modelOpponent.Movement.Position);
         }
     }
 
+
+
     public void Tick()
     {
+        //if you are currently attacking
         if (CurrentState == ModelState.Attacking)
         {
-            if (!m_bIsInRange.Value && Movement.Target != PlayerModel.s_instance.Movement.Position)
+            if (!m_bIsInRange.Value)
             {
-                Movement.MoveToAttack(PlayerModel.s_instance.Movement.Position, Inventory.CombatRange);
+                if (Movement.Target != PlayerModel.s_instance.Movement.Position)
+                    Movement.MoveToAttack(PlayerModel.s_instance.Movement.Position, Inventory.CombatRange);
             }
             else
             {
+                Stop();
                 CheckRange();
             }
         }
+        //If you are currently fleeing
         if (CurrentState == ModelState.Fleeing)
         {
-            if (IsPlayerInDetectionRange)
+            //If the player is within your detection range, randomize if you will flee right away or not
+            if (IsPlayerInDetectionRange && Random.Range(0.0f, 1.0f) > 0.5f)
             {
                 FleeFromPlayer();
             }

@@ -12,7 +12,7 @@ public class PlayerModel : Model
 
     WeaponPickup m_weaponPickUp;    //The weapon you are supposed to pickup. This is only needed for PickingUp State
 
-    float m_fRepathRate = 0.5f;
+    float m_fRepathRate = 0.25f;
 
     protected override void Awake()
     {
@@ -41,7 +41,6 @@ public class PlayerModel : Model
             .Where(m_fHealth => m_fHealth <= 0)
             .Subscribe(m_fHealth => ChangeToState(ModelState.Idle));
             InvokeRepeating("RepathToOpponent", m_fRepathRate, m_fRepathRate);
-            CheckRange();
         }
 
         if (goClicked.layer == 9 /*Weapon*/)
@@ -82,7 +81,6 @@ public class PlayerModel : Model
         //If you are attacking, try to rotate towards your target
         if (CurrentState == ModelState.Attacking)
         {
-            CheckRange();
             Movement.RotateTowards(m_modelOpponent.Movement.Position);
         }
     }
@@ -90,8 +88,15 @@ public class PlayerModel : Model
     //Repath to your Opponent if you aren't in range yet and your opponent has moved
     private void RepathToOpponent()
     {
+        Debug.Log("Repath");
         CheckRange();
-        if (!Movement.HasArrived && Movement.Target != m_modelOpponent.Movement.Position)
+        //If you are within range of your opponent, Stop and attack him
+        if(m_bIsInRange.Value)
+        {
+            Stop();
+        }
+        //if you are not, and he has moved or you dont have a path, move to him again
+        else if (!Movement.Agent.hasPath || Movement.Target != m_modelOpponent.Movement.Position)
         {
             Movement.MoveToAttack(m_modelOpponent.Movement.Position, Inventory.CombatRange);
         }

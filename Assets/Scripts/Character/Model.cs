@@ -55,6 +55,11 @@ public class Model : MonoBehaviourTrans
 
     }
 
+    private void Update()
+    {
+        CheckRange();
+    }
+
     //Change to the given state
     public void ChangeToState(ModelState _playerstate)
     {
@@ -80,21 +85,23 @@ public class Model : MonoBehaviourTrans
         if(m_modelstateCurrent.Value == ModelState.Attacking)
         {
             Movement.MoveToAttack(m_modelOpponent.Movement.Position, Inventory.CombatRange);
-            CheckRange();
+            
         }
     }
 
     //Check if you are in CombatRange
     protected void CheckRange()
     {
-        m_bIsInRange.Value = Vector3.Distance(transform.position, m_modelOpponent.Movement.Position) <= Inventory.CombatRange;
+        if(m_modelOpponent != null)
+            m_bIsInRange.Value = Vector3.Distance(transform.position, m_modelOpponent.Movement.Position) <= Inventory.CombatRange;
     }
 
     //Animation EventReceiver
+
+    //This Event is triggered from the attack animation;
     public void HitEvent()
     {
-        CheckRange();
-        if (m_bIsInRange.Value && Vector3.Angle(transform.forward, (m_modelOpponent.Movement.Position - transform.position)) <= 30)
+        if (m_bIsInRange.Value && Vector3.Angle(transform.forward, (m_modelOpponent.Movement.Position - transform.position)) <= 45)
         {
             float fDamage = Inventory.ActiveWeapon != null ? Inventory.ActiveWeapon.m_fDamage : m_fUnarmedDamage;
             m_modelOpponent.Health.TakeDamage(fDamage);

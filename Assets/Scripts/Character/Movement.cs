@@ -29,6 +29,10 @@ public class Movement : MonoBehaviourTrans
     
     void LateUpdate()
     {
+        for(int i = 0; i < Agent.path.corners.Length-1; i++)
+        {
+            Debug.DrawLine(Agent.path.corners[i], Agent.path.corners[i + 1], Color.red);
+        }
         //Check if the NavMeshAgent is Null or not on the Mesh
         if (m_navmeshagentThis == null)
         {
@@ -46,7 +50,7 @@ public class Movement : MonoBehaviourTrans
         float fRemainingDistance = m_navmeshagentThis.remainingDistance;
 
         //If the agent is still moving, has still some Distance to go or is still calculating his path, he has not arrived yet set. Also set the lookDirection to the velocity direction
-        if (m_navmeshagentThis.velocity.magnitude > 0 || fRemainingDistance > float.Epsilon || m_navmeshagentThis.pathPending)
+        if (fRemainingDistance > float.Epsilon || m_navmeshagentThis.pathPending)
         {
             m_bHasArrived.Value = false;
         }

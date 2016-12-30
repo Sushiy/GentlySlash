@@ -6,7 +6,7 @@ using BehaviourTree;
 
 public class AIController : MonoBehaviour
 {
-    public static float m_fTickRate = 0.5f;
+    public static float m_fTickRate = 0.25f;
     AIModel m_aimodelThis;
     AIBehaviour m_aibehaviourThis;
 
