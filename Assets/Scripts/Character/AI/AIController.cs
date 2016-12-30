@@ -25,8 +25,8 @@ public class AIController : MonoBehaviour
                     //if the payer is not dead and in range => idle
                     Selector selectorDeadOrNotInRange = new Selector(sequenceConditionsOrIdle);
                         Condition_PlayerDead conditionDead = new Condition_PlayerDead(selectorDeadOrNotInRange, m_aibehaviourThis);
-                    Inverter inverterNotInRange = new Inverter(sequenceConditionsOrIdle);
-                        Condition_InDetectionRange conditionInRange = new Condition_InDetectionRange(selectorDeadOrNotInRange, m_aibehaviourThis);
+                    Inverter inverterNotInRange = new Inverter(selectorDeadOrNotInRange);
+                        Condition_InDetectionRange conditionInRange = new Condition_InDetectionRange(inverterNotInRange, m_aibehaviourThis);
                     IdleTask idleTask = new IdleTask(sequenceConditionsOrIdle, m_aibehaviourThis);
                 }
                 Selector selectorFleeOrFight = new Selector(selectorIdleOrAction);
